@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아직 크루가 되지 못한 별들</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        .star {
+            fill: blue;
+            stroke: white;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+    <h1>아직 크루가 되지 못한 별들</h1>
+    <svg width="100%" height="600"></svg>
+    <script>
+        // Fetch the names from the API
+        function fetchAndDrawStars() {
+            fetch('/crews')
+                .then(response => response.json())
+                .then(data => {
+                    const width = 800;
+                    const height = 600;
+                    const svg = d3.select("svg");
+
+                    // Define the positions for each star (for demo purposes)
+                    const positions = data.map((d, i) => ({
+                        name: d,
+                        x: Math.random() * width,
+                        y: Math.random() * height
+                    }));
+
+                    // Draw the stars
+                    const stars = svg.selectAll("circle")
+                        .data(positions)
+                        .enter()
+                        .append("circle")
+                        .attr("class", "star")
+                        .attr("cx", d => d.x)
+                        .attr("cy", d => d.y)
+                        .attr("r", 10);
+
+                    // Add labels
+                    const labels = svg.selectAll("text")
+                        .data(positions)
+                        .enter()
+                        .append("text")
+                        .attr("x", d => d.x + 15)
+                        .attr("y", d => d.y + 5)
+                        .text(d => d.name);
+
+                    // Function to move stars
+                    function moveStars() {
+                        positions.forEach(d => {
+                            d.x = Math.random() * width;
+                            d.y = Math.random() * height;
+                        });
+
+                        stars.transition()
+                            .duration(2000)
+                            .attr("cx", d => d.x)
+                            .attr("cy", d => d.y);
+
+                        labels.transition()
+                            .duration(2000)
+                            .attr("x", d => d.x + 15)
+                            .attr("y", d => d.y + 5);
+                    }
+
+                    // Move stars every 3 seconds
+                    setInterval(moveStars, 3000);
+                });
+            }
+            fetchAndDrawStars();
+            setInterval(fetchAndDrawStars, 30000);
+    </script>
+</body>
+</html>
